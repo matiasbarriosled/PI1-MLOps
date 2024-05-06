@@ -42,7 +42,7 @@ def index():
         """    
     return principal
 
-@app.get('/playtimegenre/{genero}')
+@app.get('/PlayTimeGenre/{genero}')
 def PlayTimeGenre(genero: str):
     items_games = pd.read_parquet("consultas/playtime_genre.parquet")
     #filtramos los datos que cumplan con la busqueda
@@ -55,6 +55,24 @@ def PlayTimeGenre(genero: str):
     texto = f'ano de lanzamiento con mas horas jugadas para el Género de {genero}: '+resultado.iloc[0]
     return texto
 
-@app.get('/userforgenre/{genero}')
-def UserForGenre(genero: str):
-    ''
+
+
+@app.get('/UsersRecommend/{anio}')
+def UsersRecommend(anio: int):
+    review = pd.read_parquet('consultas/users_recommend.parquet')
+    review = review[review['year_posted']==anio]
+    review = review.sort_values('recommend',ascending=False)
+    
+    texto = f'PUESTO N°1: '+review.iloc[0]['title']+f' ||  PUESTO N°2: '+ review.iloc[1]['title']+f' ||  PUESTO N°3: '+ review.iloc[2]['title']
+    return texto
+
+
+
+@app.get('/UsersNotRecommend/{anio}')
+def UsersNotRecommend(anio: int):
+    review = pd.read_parquet('consultas/users_not_recommend.parquet')
+    review = review[review['year_posted']==anio]
+    review = review.sort_values('recommend',ascending=False)
+    
+    texto = f'PUESTO N°1: '+review.iloc[0]['title']+f' ||  PUESTO N°2: '+ review.iloc[1]['title']+f' ||  PUESTO N°3: '+ review.iloc[2]['title']
+    return texto
