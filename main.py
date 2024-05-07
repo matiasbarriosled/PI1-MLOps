@@ -57,13 +57,31 @@ def PlayTimeGenre(genero: str):
 
 
 
+@app.get('/UserForGenre/{genero}')
+def UserForGenre(anio: int):
+    user_genre = pd.read_parquet('consultas/user_for_genre.parquet')
+    usuario = user_genre[user_genre['genres'].apply(lambda x: genero in x)]
+
+    usuario.drop(['genres','release_year'], axis=1, inplace=True)
+
+    usuario = usuario.groupby(['user_id']).sum().reset_index()
+
+    usuario = usuario[usuario['playtime_forever']==usuario['playtime_forever'].max()]
+    return usuario['user_id'].iloc[0]
+
+
+
 @app.get('/UsersRecommend/{anio}')
 def UsersRecommend(anio: int):
     review = pd.read_parquet('consultas/users_recommend.parquet')
+    #con groupby() podemos realizar la suma, agrupando primero el año, despues el conjunto de title
+    # y realizar una suma en la columna restante que es sentiment analysis esta nos servira para 
+    #  contar cuantas veces aparece el juego recomendado
+    review = review.groupby(['year_posted','title']).sum().reset_index()
     review = review[review['year_posted']==anio]
     review = review.sort_values('recommend',ascending=False)
     
-    texto = f'PUESTO N°1: '+review.iloc[0]['title']+f' ||  PUESTO N°2: '+ review.iloc[1]['title']+f' ||  PUESTO N°3: '+ review.iloc[2]['title']
+    texto = f'JUEGOS MAS RECOMENDADOS -->  PUESTO N°1: '+review.iloc[0]['title']+f' ||  PUESTO N°2: '+ review.iloc[1]['title']+f' ||  PUESTO N°3: '+ review.iloc[2]['title']
     return texto
 
 
@@ -71,8 +89,35 @@ def UsersRecommend(anio: int):
 @app.get('/UsersNotRecommend/{anio}')
 def UsersNotRecommend(anio: int):
     review = pd.read_parquet('consultas/users_not_recommend.parquet')
+    review = review.groupby(['year_posted','title']).sum().reset_index()
     review = review[review['year_posted']==anio]
-    review = review.sort_values('recommend',ascending=False)
+    review = review.sort_values('not_recommend',ascending=False)
     
-    texto = f'PUESTO N°1: '+review.iloc[0]['title']+f' ||  PUESTO N°2: '+ review.iloc[1]['title']+f' ||  PUESTO N°3: '+ review.iloc[2]['title']
+    texto = f'JUEGOS MENOS RECOMENDADOS -->  PUESTO N°1: '+review.iloc[0]['title']+f' ||  PUESTO N°2: '+ review.iloc[1]['title']+f' ||  PUESTO N°3: '+ review.iloc[2]['title']
     return texto
+
+
+
+@app.get('/SentimentAnalysis/{anio}')
+def SentimentAnalysis(anio: int):
+    sentiment = pd.read_parquet('consultas/sentiment_analysis.parquet')
+    sentiment = sentiment.groupby(['year_posted','sentiment_analysis']).sum().reset_index()
+    sentiment = sentiment[sentiment['year_posted']==anio]
+    
+    sentiment['sentiment_analysis']=sentiment['sentiment_analysis'].replace(0,'negativo')
+    sentiment['sentiment_analysis']=sentiment['sentiment_analysis'].replace(1,'neutral')
+    sentiment['sentiment_analysis']=sentiment['sentiment_analysis'].replace(2,'positivo')
+
+    indice=3
+    texto = ''
+
+    while indice>0:
+        texto+=f'{sentiment.iloc[indice-1][1]}:{sentiment.iloc[indice-1][2]}'
+        if indice>1:
+            texto+=', '
+        indice-=1
+
+    return texto
+
+
+
