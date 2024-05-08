@@ -58,7 +58,7 @@ def PlayTimeGenre(genero: str):
 
 
 @app.get('/UserForGenre/{genero}')
-def UserForGenre(anio: int):
+def UserForGenre(genero: str):
     user_genre = pd.read_parquet('consultas/user_for_genre.parquet')
     usuario = user_genre[user_genre['genres'].apply(lambda x: genero in x)]
 
