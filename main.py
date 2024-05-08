@@ -23,16 +23,10 @@ def index():
     background-color:yellow
   }
 
-  .centro{
-    width:400px,
-    height:560px,
-    background-color:white
-  }
-
 </style>
 <body>
   
-  <div class="centro"><a href="https://www.soyhenry.com" target="_blank"> #SoyHenry </a></div>
+  <div class=""><a href="https://pi1-mlops-vv02.onrender.com/docs" target="_blank"> #SoyHenry </a></div>
   <br>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
